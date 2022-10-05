@@ -9,7 +9,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='singer-target-postgres',
+    name='target-postgres',
     url='https://github.com/datamill-co/target-postgres',
     author='datamill',
     version="0.2.4",
