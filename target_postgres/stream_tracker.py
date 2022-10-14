@@ -87,7 +87,7 @@ class StreamTracker:
             emittable_state_str = self.state_queue.popleft()['state']
 
         if emittable_state_str is not None:
-            emittable_state = json.loads(emittable_state_str)['value']
+            emittable_state = emittable_state_str['value']
 
         if emittable_state:
             if len(statediff.diff(emittable_state, self.last_emitted_state or {})) > 0:
