@@ -34,6 +34,12 @@ def main(config, input_stream=None):
             after_run_sql=config.get('after_run_sql'),
         )
 
+        # TODO: DP
+        with postgres_target.conn.cursor() as cur:
+            create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {config.get('postgres_schema', 'public')}"
+            # print(create_schema_sql)
+            cur.execute(create_schema_sql)
+
         if input_stream:
             target_tools.stream_to_target(input_stream, postgres_target, config=config)
         else:

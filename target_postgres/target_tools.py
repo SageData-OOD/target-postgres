@@ -52,6 +52,8 @@ def stream_to_target(stream, target, config={}):
         max_batch_rows = config.get('max_batch_rows', 200000)
         max_batch_size = config.get('max_batch_size', 104857600)  # 100MB
         batch_detection_threshold = config.get('batch_detection_threshold', max(max_batch_rows / 40, 50))
+        # TODO: DP
+        tables_prefix = config["tables_prefix"]
 
         line_count = 0
         for line in stream:
@@ -61,7 +63,8 @@ def stream_to_target(stream, target, config={}):
                           invalid_records_threshold,
                           max_batch_rows,
                           max_batch_size,
-                          line
+                          line,
+                          tables_prefix
                           )
             if line_count > 0 and line_count % batch_detection_threshold == 0:
                 state_tracker.flush_streams()
@@ -89,12 +92,17 @@ def _report_invalid_records(streams):
 
 
 def _line_handler(state_tracker, target, invalid_records_detect, invalid_records_threshold, max_batch_rows,
-                  max_batch_size, line):
+                  max_batch_size, line, tables_prefix):
     try:
         line_data = json.loads(line, parse_float=decimal.Decimal)
     except json.decoder.JSONDecodeError:
         LOGGER.error("Unable to parse JSON: {}".format(line))
         raise
+
+    stream_name = line_data.get('stream')
+
+    if stream_name:
+        line_data['stream'] = f"{tables_prefix}__{stream_name}"
 
     if 'type' not in line_data:
         raise TargetError('`type` is a required key: {}'.format(line))
